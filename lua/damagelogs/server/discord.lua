@@ -4,45 +4,39 @@ local POST_MODES = {
     ALWAYS = 2
 }
 
-local HTTP = HTTP
-local url = CreateConVar("ttt_dmglogs_discordurl", "", FCVAR_PROTECTED + FCVAR_LUA_SERVER, "TTTDamagelogs - Discord Webhook URL")
+local url = Damagelog.DiscordWebhookURL
 local disabled = Damagelog.DiscordWebhookMode == POST_MODES.DISABLED
 local emitOnlyWhenAdminsOffline = Damagelog.DiscordWebhookMode == POST_MODES.WHEN_ADMINS_OFFLINE
 local limit = 5
 local reset = 0
 
-local use_chttp = pcall(require, "chttp")
-if use_chttp then
-    HTTP = CHTTP
-end
-
 local function SendDiscordMessage(embed)
-    local now = os.time(os.date("!*t"))
+    local now = os.time()
 
     if limit == 0 and now < reset then
-        local function tcb()
+        timer.Simple(reset - now, function()
             SendDiscordMessage(embed)
+        end)
+        return
+    end
+
+    http.Post(url,
+        {
+            payload_json = util.TableToJSON({embeds = {embed}})
+        },
+        function(body, length, headers, code)
+            if code == 200 or code == 204 then
+                limit = tonumber(headers["X-RateLimit-Remaining"]) or limit
+                reset = tonumber(headers["X-RateLimit-Reset"]) or reset
+            else
+                print("[Damagelog] Failed to send Discord message: " .. tostring(code))
+            end
+        end,
+        function(error)
+            print("[Damagelog] HTTP error: " .. tostring(error))
         end
-
-        timer.Simple(reset - now, tcb)
-    end
-
-    local function successCallback(status, body, headers)
-        limit = headers["X-RateLimit-Remaining"]
-        reset = headers["X-RateLimit-Reset"]
-    end
-
-    HTTP({
-        method = "POST",
-        url = url:GetString(),
-        body = util.TableToJSON({
-            embeds = {embed}
-        }),
-        type = "application/json",
-        success = successCallback
-    })
+    )
 end
-
 
 function Damagelog:DiscordMessage(discordUpdate)
     if disabled or (emitOnlyWhenAdminsOffline and discordUpdate.adminOnline) then
