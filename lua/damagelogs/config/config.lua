@@ -125,11 +125,6 @@ Damagelog.AllowBanningThruManager = true
 
 -- Discord Webhooks
 -- You can create a webhook on your Discord server that will automatically post messages when a report is created.
--- IMPORTANT:
--- 		Discord blocks webhooks from GMod servers.
---		You will need to proxy your requests through a web server
---		GMod Server -> Web Server -> Discord
-
 
 -- Webhook mode:
 -- 0 - disabled

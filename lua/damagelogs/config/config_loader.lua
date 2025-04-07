@@ -12,7 +12,6 @@ DamageLog.MyNewProperty = config.MyNewProperty
 
 ]]
 
-
 function Damagelog:getConfig()
     local config = {}
     --Permissions
@@ -76,7 +75,6 @@ function Damagelog:getConfig()
     config.Reports.MoreReportsPerRound = Damagelog.MoreReportsPerRound
     config.Reports.ReportsBeforePlaying = Damagelog.ReportsBeforePlaying
 
-    config.PrivateMessagePrefix = Damagelog.PrivateMessagePrefix
     config.DiscordWebhookMode = Damagelog.DiscordWebhookMode
     config.DiscordWebhookURL = Damagelog.DiscordWebhookURL
 
@@ -179,9 +177,9 @@ function Damagelog:loadConfigFromTable(loaded_config)
 
     Damagelog.PrivateMessagePrefix = config.PrivateMessagePrefix
 
-    Damagelog.DiscordWebhookMode = config.DiscordWebhookMode
-    Damagelog.DiscordWebhookURL = config.DiscordWebhookURL
-    
+    Damagelog.DiscordWebhookMode = config.DiscordWebhookMod
+
+    Damagelog.DiscordWebhookURL = config.DiscordWebhookURL 
 end
 
 function Damagelog:loadMySQLConfig()
