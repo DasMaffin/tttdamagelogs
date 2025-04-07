@@ -25,25 +25,32 @@ local function SendDiscordMessage(embed)
         return
     end
 
-    http.Post(url,
-        {
-            payload_json = util.TableToJSON({embeds = {embed}})
+    local jsonPayload = util.TableToJSON({ embeds = { embed } })
+
+    HTTP({
+        url = url,
+        method = "POST",
+        headers = {
+            ["Content-Type"] = "application/json",
+            ["User-Agent"] = "Mozilla/5.0 (GMod Lua)"
         },
-        function(body, length, headers, code)
+        body = jsonPayload,
+        success = function(code, body, headers)
             if code == 200 or code == 204 then
                 limit = tonumber(headers["X-RateLimit-Remaining"]) or limit
                 reset = tonumber(headers["X-RateLimit-Reset"]) or reset
             else
                 print("[Damagelog] Failed to send Discord message: " .. tostring(code))
-                print(headers)
+                PrintTable(headers)
                 print(body)
             end
         end,
-        function(error)
+        failed = function(error)
             print("[Damagelog] HTTP error: " .. tostring(error))
         end
-    )
+    })
 end
+
 
 function Damagelog:DiscordMessage(discordUpdate)
     if disabled or (emitOnlyWhenAdminsOffline and discordUpdate.adminOnline) then
