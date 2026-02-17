@@ -66,8 +66,8 @@ function IsBasedOn(gun, targetBase)
         end
 
         -- Prevent infinite loops in broken base chains
-        if visited[current] then break end
-        visited[current] = true
+        if visited[current.Base] then break end
+        visited[current.Base] = true
 
         current = weapons.GetStored(current.Base)
     end
